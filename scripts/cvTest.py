@@ -2,7 +2,7 @@ from PIL import ImageGrab
 import cv2 as cv
 import numpy as np
 
-screenSize = [1920, 1800]
+screenSize = [800, 600]
 lower_purple = np.array([135,150,0])
 upper_purple = np.array([165,255,255])
 lower_blue = np.array([100,150,0])
@@ -25,8 +25,9 @@ def main():
             centerEstimate = [posFilter(centerEstimate[0], newCenterEstimate[0]), posFilter(centerEstimate[1], newCenterEstimate[1])]
             playerPos = [centerEstimate[0]- zero[0], centerEstimate[1] - zero[1]]
         print(playerPos)
+    
         """
-        cv.imshow('Python Window',playerFinder(hsv))
+        cv.imshow('Python Window',result)
 
         if cv.waitKey(25) & 0xFF == ord('q'):
             cv.destroyAllWindows()
@@ -40,6 +41,8 @@ def playerFinder(hsv): # Estimates player position
     erode = cv.erode(hsv,np.ones((3, 3), np.uint8 ))
     mask = cv.inRange(erode, lower_purple, upper_purple)
     result = cv.bitwise_and(hsv, hsv, mask = mask)
+ 
+    
     canny = cv.Canny(result, 50, 150)
     contours, hierarchy= cv.findContours(canny, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
     aproxContours = []
@@ -59,6 +62,7 @@ def playerFinder(hsv): # Estimates player position
         return True, centerEstimate
     else:
         return False, [0,0]
+    
 
 def zeroFinder(hsv):#Finds court corner, will be used to locate player with x,y coords
     hsv = cv.dilate(hsv,np.ones((5, 5), np.uint8))
@@ -66,7 +70,7 @@ def zeroFinder(hsv):#Finds court corner, will be used to locate player with x,y 
     result = cv.bitwise_and(hsv, hsv, mask = mask)
     canny = cv.Canny(result, 50, 150)
     contours, hierarchy= cv.findContours(canny, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
-
+    
     aproxContours = []
     for i in contours:     
             aprox = cv.approxPolyDP(i, 10, False)

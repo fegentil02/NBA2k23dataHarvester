@@ -2,7 +2,7 @@ from PIL import ImageGrab
 import cv2 as cv
 import numpy as np
 
-screenSize = [800, 600]
+screenSize = [1920, 1800]
 lower_purple = np.array([135,150,0])
 upper_purple = np.array([165,255,255])
 lower_blue = np.array([100,150,0])
@@ -10,32 +10,27 @@ upper_blue = np.array([140,255,255])
 
 
 def main():
-    playerPos = [0,0]
     zero = [0,0]
     centerEstimate = [0,0]
-    while(True):
-        screen = np.array(ImageGrab.grab(bbox=(0,0,screenSize[0],screenSize[1])))
-        hsv = cv.cvtColor(screen, cv.COLOR_RGB2HSV)#Color detection with HSV values
-        
-        
-        result0, newZero = zeroFinder(hsv)
-        result1, newCenterEstimate = playerFinder(hsv)
-        if result0 and result1:
-            zero = [posFilter(zero[0], newZero[0]), posFilter(zero[1], newZero[1])]
-            centerEstimate = [posFilter(centerEstimate[0], newCenterEstimate[0]), posFilter(centerEstimate[1], newCenterEstimate[1])]
-            playerPos = [centerEstimate[0]- zero[0], centerEstimate[1] - zero[1]]
-        print(playerPos)
-    
-        """
-        cv.imshow('Python Window',result)
+    while True:
+        print(estimatePOS(zero, centerEstimate))
 
-        if cv.waitKey(25) & 0xFF == ord('q'):
-            cv.destroyAllWindows()
-            break
-        """
+def estimatePOS(zero, centerEstimate):
+    playerPos = [0,0]
+    screen = np.array(ImageGrab.grab(bbox=(0,0,screenSize[0],screenSize[1])))
+    hsv = cv.cvtColor(screen, cv.COLOR_RGB2HSV)#Color detection with HSV values
+        
+        
+    result0, newZero = zeroFinder(hsv)
+    result1, newCenterEstimate = playerFinder(hsv)
+    if result0 and result1:
+        zero = [posFilter(zero[0], newZero[0]), posFilter(zero[1], newZero[1])]
+        centerEstimate = [posFilter(centerEstimate[0], newCenterEstimate[0]), posFilter(centerEstimate[1], newCenterEstimate[1])]
+        playerPos = [(centerEstimate[0]- zero[0])//10, (centerEstimate[1] - zero[1])//10]
+    return playerPos, zero, centerEstimate
 
 def posFilter(oldPos, newPos): # Stabilizes pos results
-    return 0.6*newPos + 0.4*oldPos   
+    return 0.7*newPos + 0.4*oldPos   
 
 def playerFinder(hsv): # Estimates player position
     erode = cv.erode(hsv,np.ones((3, 3), np.uint8 ))
@@ -94,4 +89,5 @@ def zeroFinder(hsv):#Finds court corner, will be used to locate player with x,y 
     else: 
         return False, [0,0]
     
-main()
+if __name__ == "__main__":
+    main()

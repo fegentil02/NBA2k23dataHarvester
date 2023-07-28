@@ -9,9 +9,10 @@ def fingerprint(audio_path, sr = 44100):
     # Applies Simple Fourier Transform
     stft = librosa.stft(audio, n_fft=2048, hop_length=512)
     
-    
+    spectrogram = np.abs(stft) ** 2
+    log_spectrogram = librosa.power_to_db(spectrogram)
     # Finds Local Maximums and makes it 1D
-    peaks = librosa.util.localmax(np.abs(stft))
+    peaks = librosa.util.localmax(log_spectrogram)
     peaks = peaks.flatten()
     
     #Finds The indexes of the local maximums(peaks)
@@ -47,10 +48,10 @@ def compare(fingerprint1, fingerprint2):
             if fingerprint1[i] == fingerprint2[i]:
                 close += 1  
         return (close/len(fingerprint2))*100 
-    
+    #return close
 def main():
-    fingerprint1 = fingerprint('audio/make1.wav')
-    fingerprint2 = fingerprint('audio/make4.wav')
+    fingerprint1 = fingerprint('miss.wav')
+    fingerprint2 = fingerprint('temp.wav')
     close = compare(fingerprint1, fingerprint2)
     print(close)
 

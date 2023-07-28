@@ -1,6 +1,11 @@
 import vgamepad as vg
 import time
 
+def gamepadInit():
+    gamepad = vg.VX360Gamepad()
+    gamepad.reset()
+    return gamepad
+
 def shoot(gamepad, delay):#Presses x, holds for x amount of time, releases
     gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_X)
     gamepad.update()
@@ -26,5 +31,5 @@ def main():
     
     
     
-
-main()
+if __name__ == "__main__":
+    main()

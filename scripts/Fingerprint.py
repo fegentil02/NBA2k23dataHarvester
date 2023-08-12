@@ -1,11 +1,12 @@
 import numpy as np
 import librosa
+import noisereduce as nr
 from hashlib import sha1
 
 def fingerprint(audio_path, sr = 44100):
     #Reads audio file
     audio, _ = librosa.load(audio_path, sr=sr, mono=True)
-    
+    audio = nr.reduce_noise(y= audio, sr= sr)
     # Applies Simple Fourier Transform
     stft = librosa.stft(audio, n_fft=2048, hop_length=512)
     
@@ -50,7 +51,7 @@ def compare(fingerprint1, fingerprint2):
         return (close/len(fingerprint2))*100 
     #return close
 def main():
-    fingerprint1 = fingerprint('miss.wav')
+    fingerprint1 = fingerprint('audio/make4.wav')
     fingerprint2 = fingerprint('temp.wav')
     close = compare(fingerprint1, fingerprint2)
     print(close)

@@ -1,6 +1,6 @@
 import vgamepad as vg
 import time
-
+import keyboard
 
 class controller():
     def __init__(self) -> None:
@@ -22,15 +22,21 @@ class controller():
         self.gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
         self.gamepad.update()
         time.sleep(1)
-    
+    def pumpfake(self):#Taps the x button, makes the player do a pumpfake
+        self.gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_X)
+        self.gamepad.update()
+        time.sleep(0.11)
+        self.gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_X)
+        self.gamepad.update()
+        time.sleep(0.2) 
 
 def main():
     print("Testing joystick")
     gamepad = controller()
-    controller.gamepad.reset()
-    while(True):
-        controller.ballReset()
-    
+    keyboard.wait('enter')
+    gamepad.pumpfake()
+    while True:
+        time.sleep(1)
     
     
 if __name__ == "__main__":

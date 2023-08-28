@@ -10,12 +10,16 @@ upper_purple = np.array([165,255,255])
 
 def main():
     test = visual(courtColor= 'Green')
+    
     while True:
-        currentPOS, zero, centerEstimate = test.estimatePOS([0,0], [0,0])
-        print(currentPOS)
-
+        print(test.shotFinder())
+        img = test.excellentFinder()
+        cv.imshow("test", img)
+        if cv.waitKey(25) & 0xFF == ord('q'):
+            cv.destroyAllWindows()
+            break
 class visual():
-    def __init__(self, screenSize = [1920, 1800], courtColor = 'Blue', lower_court = np.array([100,150,0]), upper_court = np.array([140,255,255]) ) -> None:
+    def __init__(self, screenSize = [1920, 1080], courtColor = 'Blue', lower_court = np.array([100,150,0]), upper_court = np.array([140,255,255]) ) -> None:
         self.screenSize = screenSize
         self.lower_court = lower_court
         self.upper_court = upper_court
@@ -36,11 +40,34 @@ class visual():
                 self.lower_court = np.array([36, 25, 25])
                 self.upper_court = np.array([86, 255, 255])
           
-
-    def estimatePOS(self, zero, centerEstimate):
-        playerPos = [0,0]
+    def getHSV(self):
         screen = np.array(ImageGrab.grab(bbox=(0,0,self.screenSize[0],self.screenSize[1])))
         hsv = cv.cvtColor(screen, cv.COLOR_RGB2HSV)#Color detection with HSV values
+        return hsv
+    
+    def shotFinder(self):
+        hsv = self.getHSV()
+        croppedHSV = hsv[int(self.screenSize[0]*0.05):int(self.screenSize[0]*0.06),int(self.screenSize[1]*0.8):int(self.screenSize[1]*0.98)]
+        colorList, counts = np.unique(croppedHSV, axis=1, return_counts= True)
+        print(counts[0])  
+        return counts[0] > 50
+    
+    def excellentFinder(self):
+        hsv = self.getHSV()
+        croppedHSV = hsv[int(self.screenSize[0]*0.05):int(self.screenSize[0]*0.06),int(self.screenSize[1]*0.8):int(self.screenSize[1]*0.98)]
+        mask = cv.inRange(croppedHSV, np.array([36, 25, 25]),np.array([86, 255, 255]))
+        greenCount = 0
+        for i in mask:
+           for j in i:
+               if j == 255:
+                   greenCount += 1
+        print(greenCount)
+        return greenCount > 200
+        #return croppedHSV
+        
+    def estimatePOS(self, zero, centerEstimate):
+        playerPos = [0,0]
+        hsv = self.getHSV()
         
         
         result0, newZero = self.zeroFinder(hsv)
